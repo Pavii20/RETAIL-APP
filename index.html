@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Advanced Retail Banking App</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+ --bg:#f1f5f9;--text:#020617;--card:#fff;--accent:#2563eb;
+}
+.dark{
+ --bg:#020617;--text:#f8fafc;--card:#0f172a;--accent:#38bdf8;
+}
+body{margin:0;font-family:Poppins;background:var(--bg);color:var(--text)}
+.topbar{height:64px;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 30px}
+.layout{display:flex}
+.sidebar{width:230px;background:#020617;color:#fff;min-height:100vh;padding:20px}
+.sidebar a{display:block;color:#c7d2fe;padding:12px;border-radius:10px;margin-bottom:8px;text-decoration:none;cursor:pointer}
+.sidebar a.active,.sidebar a:hover{background:var(--accent);color:#fff}
+.main{flex:1;padding:30px}
+.card,.section{background:var(--card);padding:20px;border-radius:16px;margin-bottom:20px}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:20px}
+.page{display:none}
+#loginPage{display:block}
+input,select{padding:10px;width:250px;border-radius:8px;border:1px solid #ccc}
+button{padding:10px 20px;border:none;border-radius:10px;background:var(--accent);color:#fff;cursor:pointer}
+.badge{padding:6px 12px;border-radius:20px;color:#fff}
+.activeBadge{background:#16a34a}
+.blocked{background:#dc2626}
+</style>
+</head>
+<body>
+
+<!-- LOGIN PAGE -->
+<div class="page" id="loginPage">
+ <div class="section" style="max-width:400px;margin:100px auto;text-align:center">
+  <h2>🏦 Bank Login</h2>
+  <input id="user" placeholder="Username"><br><br>
+  <input id="pass" type="password" placeholder="Password"><br><br>
+  <button onclick="loginUser()">Login</button>
+ </div>
+</div>
+
+<!-- APP -->
+<div id="app" style="display:none">
+<div class="topbar">
+ <b>🏦 Retail Banking</b>
+ <div>
+  <button onclick="toggleTheme()">🌙</button>
+  <button onclick="logout()">Logout</button>
+ </div>
+</div>
+
+<div class="layout">
+ <div class="sidebar">
+  <a class="active" onclick="showPage('dashboard',this)">Dashboard</a>
+  <a onclick="showPage('transactions',this)">Transactions</a>
+  <a onclick="showPage('historyPage',this)">History</a>
+  <a onclick="showPage('cardsPage',this)">Cards</a>
+  <a onclick="showPage('loans',this)">Loans</a>
+  <a onclick="showPage('profile',this)">Profile</a>
+ </div>
+
+ <div class="main">
+
+ <!-- DASHBOARD -->
+ <div class="page" id="dashboard">
+  <div class="cards">
+   <div class="card">Balance<br><h2>₹ <span id="balance">75000</span></h2></div>
+   <div class="card">Account Status<br><span id="accStatus" class="badge activeBadge">Active</span></div>
+  </div>
+ </div>
+
+ <!-- TRANSACTIONS -->
+ <div class="page" id="transactions">
+  <div class="section">
+   <h3>Money Transfer</h3>
+
+   <label>Transfer Type</label><br>
+   <select id="type" onchange="toggleBankOptions()">
+    <option value="">Select</option>
+    <option value="deposit">Deposit</option>
+    <option value="withdraw">Withdraw</option>
+    <option value="same">Same Bank Transfer</option>
+    <option value="other">Other Bank Transfer</option>
+   </select><br><br>
+
+   <div id="bankDiv" style="display:none">
+    <label>Select Bank</label><br>
+    <select id="bank">
+     <option value="SBI">State Bank of India</option>
+     <option value="HDFC">HDFC Bank</option>
+     <option value="ICICI">ICICI Bank</option>
+     <option value="AXIS">Axis Bank</option>
+     <option value="PNB">Punjab National Bank</option>
+    </select><br><br>
+   </div>
+
+   <input id="amt" type="number" placeholder="Amount"><br><br>
+   <button onclick="process()">Submit</button>
+  </div>
+ </div>
+ </div>
+
+ <!-- HISTORY -->
+ <div class="page" id="historyPage">
+  <div class="section">
+   <h3>Transaction History</h3>
+   <input placeholder="Search" onkeyup="searchHistory(this.value)"><br><br>
+   <ul id="history"></ul>
+  </div>
+ </div>
+
+ <!-- CARDS -->
+ <div class="page" id="cardsPage">
+  <div class="section">
+   <h3>Credit Card</h3>
+   Status: <span id="cardStatus" class="badge activeBadge">Active</span><br><br>
+   <button onclick="toggleCard()">Block / Unblock</button>
+  </div>
+ </div>
+
+ <!-- LOANS -->
+ <div class="page" id="loans">
+  <div class="section">
+   <h3>Loans</h3>
+   <ul><li>Home Loan</li><li>Personal Loan</li></ul>
+  </div>
+ </div>
+
+ <!-- PROFILE -->
+ <div class="page" id="profile">
+  <div class="section">
+   <h3>User Profile</h3>
+   <p>Name: Retail User</p>
+   <p>Email: user@bank.com</p>
+   <button onclick="alert('Profile updated')">Update Profile</button>
+  </div>
+ </div>
+
+ </div>
+</div>
+</div>
+
+<script>
+let balance=75000;
+let historyArr=[];
+
+function loginUser(){
+ const loginPage=document.getElementById('loginPage');
+ const app=document.getElementById('app');
+ if(user.value!=='' && pass.value!==''){
+  loginPage.style.display='none';
+  app.style.display='block';
+  showPage('dashboard');
+ }else{alert('Enter username and password');}
+}
+
+function logout(){location.reload()}
+
+function showPage(id,el){
+ document.querySelectorAll('.page').forEach(p=>p.style.display='none');
+ document.getElementById(id).style.display='block';
+ document.querySelectorAll('.sidebar a').forEach(a=>a.classList.remove('active'));
+ if(el)el.classList.add('active');
+}
+
+function process(){
+ let a=Number(amt.value);
+ if(a<=0){alert('Invalid amount');return}
+ if(type.value==='deposit')balance+=a; else balance-=a;
+ historyArr.unshift(type.value+" ₹"+a);
+ document.getElementById('balance').innerText=balance;
+ updateHistory();
+}
+
+function updateHistory(){
+ const h=document.getElementById('history');
+ h.innerHTML='';
+ historyArr.forEach(x=>{let li=document.createElement('li');li.innerText=x;h.appendChild(li)});
+}
+
+function searchHistory(v){
+ const h=document.getElementById('history');
+ h.innerHTML='';
+ historyArr.filter(x=>x.includes(v)).forEach(x=>{let li=document.createElement('li');li.innerText=x;h.appendChild(li)});
+}
+
+function toggleCard(){
+ cardStatus.innerText=cardStatus.innerText==='Active'?'Blocked':'Active';
+ cardStatus.className='badge '+(cardStatus.innerText==='Active'?'activeBadge':'blocked');
+}
+
+function toggleTheme(){document.body.classList.toggle('dark')}
+</script>
+</body>
+</html>
